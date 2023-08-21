@@ -5,12 +5,17 @@ authors = ["rostyslav <rkhudolii@airtame.com>"]
 publish = false
 edition = "2018"
 
+[features]
+default = ["std"]
+std = []
+
 [lib]
 name = "fastboot"
 
 [dev-dependencies]
 getopts = "*"
 double = "*"
+usbio = { path = "./usbio" }
 
-[dev-dependencies.usbio]
-path = "usbio"
+[dependencies]
+core2 = { version = "0.4.0", default-features = false }

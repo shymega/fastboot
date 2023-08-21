@@ -1,6 +1,11 @@
+#![cfg_attr(not(feature = "std"), no_std)]
+
+#[cfg(not(feature = "std"))]
+extern crate alloc;
+
 pub mod fastboot;
 
-#[cfg(test)]
+#[cfg(all(feature = "std", test))]
 mod tests {
     use crate::fastboot::Fastboot;
     use std::cell::RefCell;

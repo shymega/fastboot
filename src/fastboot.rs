@@ -1,7 +1,17 @@
 //! Traits, helpers, and type definitions for Fastboot host functionality.
 
-use std;
-use std::io::{Read, Write};
+#[cfg(not(feature = "std"))]
+use alloc::{
+    borrow::ToOwned,
+    format,
+    string::{String, ToString},
+    vec::Vec,
+};
+#[cfg(not(feature = "std"))]
+use core2::io::{self, Read, Write};
+
+#[cfg(feature = "std")]
+use std::io::{self, Read, Write};
 
 ///! Result wrapper that yields either a succesful result of a Fastboot operation
 ///! or an error [`String`].
@@ -34,7 +44,9 @@ impl<'s> From<&'s mut [u8]> for Reply {
                 _ => Reply::FAIL("Failed to decode DATA size".to_owned()),
             },
             _ => {
+                #[cfg(feature = "std")]
                 eprintln!("Received: {}", second);
+
                 Reply::FAIL(second.into_owned())
             }
         }
@@ -54,7 +66,7 @@ fn fb_send<T: Fastboot>(io: &mut T, payload: &[u8]) -> FbResult<Reply> {
             Ok(received) => return Ok(Reply::from(&mut buff[..received])),
             Err(err) => {
                 match err.kind() {
-                    std::io::ErrorKind::TimedOut => {
+                    io::ErrorKind::TimedOut => {
                         // Trait can't possible now what is a timeout set by a particular Read/Write implementation
                         // so it will *not* consider TimedOut a fatal error. Instead it will just try again
                         // until a reply or another error is received.
